@@ -1,0 +1,126 @@
+# Q1. Write a program that prompts the user to enter a password then prints the length of the password.
+password = input("Enter your password: ")
+print("Your password is", len(password), "long.")
+
+# Q2. Write a program that prompts the user to enter their full name then prints the number of characters in their name (do not count spaces).
+name = input("What is your name? ")
+counter = 0
+for char in name:
+  if char.isalpha():
+    counter += 1
+print(name + ", your name has", counter, "characters.")
+
+# Q3. Write a program that prompts the user to enter a month (as a number), then prints the name of the month and the number of days in that month. Ensure that the user inputs a valid month and handle any error cases.
+month = input("Enter the month number: ")
+monthDict = {1: "January", 2: "February", 3: "March", 4: "April", 5: "May", 6: "June", 7: "July", 8: "August", 9: "September", 10: "October", 11: "November", 12: "December"}
+while month.isdigit() == False or int(month) not in range(1,13):
+  month = input("Please enter a valid month number (1-12): ")
+monthInt = int(month)
+if monthInt in [1, 3, 5, 7, 8, 10, 12]:
+  days = 31
+elif monthInt in [4, 6, 9, 11]:
+  days = 30
+else:
+  days = 28
+print(monthDict[monthInt], "has", days, "days")
+
+# Q4. Write a program that prompts the user to enter a loan amount, annual interest rate, and number of years for a car loan. Then calculate and print the monthly payment amount.
+PV = float(input("Enter loan amount: "))
+I = float(input("Enter annual interest rate: "))
+i = I/1200
+N = float(input("Enter number of years for loan: "))
+n = N*12
+PMT = PV*i*((1+i)**n) / (((1+i)**n) - 1)
+monthlyPay = round(PMT, 2)
+print("Your monthly payment is: $" + str(monthlyPay))
+
+# Q5. Write a program to that prompts the user to enter a string. Then check whether or not the string is a palindrome.
+string = input("Enter a string: ")
+stringBackwards = string[::-1]
+if string == stringBackwards:
+  print(string, "is a palindrome!")
+else:
+  print(string, "is not a palindrome.")
+  
+# Q6. Write a program to compute and print all possible combinations of change for $1. Denominations to be considered – quarter, dime, nickel, penny.
+print("Change for $1.00: ")
+finalList = []
+# p + 5n + 10d + 25q = 100
+for q in range(0,5,1):
+  change = 100 - (25*q)
+  if change == 0:
+    finalList.append([q,0,0,0])
+  elif change > 0:
+    for d in range(0,11,1):
+      change2 = change - (10*d)
+      if change2 == 0:
+        finalList.append([q,d,0,0])
+      elif change2 >0:
+        for n in range(0,21,1):
+          p = change2 - (5*n)
+          if p > 0:
+            finalList.append([q,d,n,p])
+for list in finalList:
+  print(list[0], "quarters,", list[1], "dimes", list[2], "nickels", list[3], "pennies")
+  
+# Q7. Ask the user to enter two positive integers between 1 and 100. Read those integers. Then output a multiplication table of the first number times the second number.
+firstInt = int(input("Please enter an integer between 1 and 100: "))
+while firstInt not in range(1,101):
+  firstInt = int(input("Please enter an integer between 1 and 100: "))
+secondInt = int(input("Please enter another integer between 1 and 100: "))
+while secondInt not in range(1,101):
+  secondInt = int(input("Please enter an integer between 1 and 100: "))
+for i in range(1, secondInt + 1):
+  print(firstInt, "x", i, "=", firstInt*i)
+  
+# Q8. Write a program to ask the user to enter a password. Then check to see if it is a valid password based on these requirements -
+# Must be at least 8 characters long
+
+# Must contain both uppercase and lowercase letters
+
+# Must contain at least one number between 0-9
+
+# Must contain a special character -!,@,#,$
+
+# If the password is not valid, ask the user to re-enter. This should continue until the user enters a valid password. After a valid password is entered, print Access Granted!
+print("Please enter a password. Follow these requirements -")
+print("a. Must be at least 8 characters long")
+print("b. Must contain both uppercase and lowercase letters")
+print("c. Must contain at least one number between 0-9")
+print("d. Must contain a special character -!,@,#,$")
+accessGranted = False
+userPass = input("Password: ")
+while accessGranted == False:
+  upperCounter = 0
+  lowerCounter = 0
+  numberCounter = 0
+  specialCharCounter = 0
+  for i in userPass:
+    if i.isupper():
+      upperCounter += 1
+    elif i.islower():
+      lowerCounter += 1
+    elif i in "0123456789":
+      numberCounter += 1
+    elif i in "-!@#$":
+      specialCharCounter += 1
+  if len(userPass) > 8 and upperCounter != 0 and lowerCounter != 0 and numberCounter != 0 and specialCharCounter != 0:
+    accessGranted = True
+  else:
+    accessGranted = False
+    userPass = input("Please enter a valid password: ")
+if accessGranted == True:
+  print("Access granted!")
+  
+# Q9. Given the score sheet of participants in a competition, you are required to find the runner-up score. You are given scores in a list. Find the score of the runner-up.
+scoreSheet = []
+runnerUp = 0
+score = 0
+while score != -1:
+  score = int(input("Enter score (enter -1 to finish): "))
+  scoreSheet.append(score)
+scoreSheet.remove(-1) 
+for i in scoreSheet:
+  if i < max(scoreSheet) and i > runnerUp:
+    runnerUp = i
+print("runner up =", runnerUp)
