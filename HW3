@@ -1,0 +1,132 @@
+# 1.a Read the csv file using Pandas. Store the output into a dataframe named frame. Print the dataframe.
+from google.colab import files 
+uploaded = files.upload()
+cars = pd.read_csv('mtcars.csv')
+frame = pd.DataFrame(cars)
+print(frame)
+
+# 1.b You notice that the index is 0..31. However, notice that there is a column called Car Name. Set the index of the dataframe to Car Name. In other words, make the column Car Name the index of frame. Print the dataframe after this.
+frame.index = frame['Car Name']
+del frame['Car Name']
+print(frame)
+
+# 1.c Create a DataFrame using the attributes: 'cyl', 'gear', 'hp', 'mpg'. Ensure that Car Name is the index. Also rename the columns to : Cylinders, Gear, Horsepower, Miles Per Gallon. Print the dataframe.
+frame2 = pd.DataFrame(frame, columns=['cyl','gear','hp','mpg'])
+frame2.rename(columns={'cyl':'cylinders', 'hp':'horsepower', 'mpg':'miles per gallon'}, inplace=True)
+print(frame2)
+
+# 1.d Now, identify cars with ‘Horsepower’ greater than or equal to 110, and add a separate column called ‘Powerful’ to the DataFrame which holds the result of cars with ‘Horsepower’ greater than or equal to 110. Print the dataframe.
+frame2['powerful'] = frame2['horsepower'] >= 110
+print(frame2)
+
+# 1.e Store the dataframe in another variable/ keep a copy of the dataframe. Now print the new DataFrame with the column ‘Horse Power’ deleted.
+storedFrame = pd.DataFrame(frame2)
+print(storedFrame[["cylinders", "gear", "miles per gallon", "powerful"]])
+
+# 1.f Using the original DataFrame (with 'Horsepower' column), list cars with 'Miles Per Gallon' greater than 25.0 and sort the cars in descending order of 'Horsepower'
+mpgFrame = frame2[frame2['miles per gallon'] > 25]
+mpgFrame.sort_values(by=['horsepower'], ascending=False)
+
+# 1.g Filter out the car that is powerful and has the highest Miles Per Gallon.
+powerfulFrame = mpgFrame[mpgFrame['powerful'] == True]
+powerfulFrame.max(axis=1)
+print(powerfulFrame)
+
+# 2.a Read the dataset into Python using Pandas. Include only these columns: Date, AveragePrice, Total Volume. Store the data in a DataFrame named avocado and print the dataframe.
+from google.colab import files 
+uploaded = files.upload()
+avo1 = pd.read_csv('avocado.csv')
+avo2 = avo1[['Date', 'AveragePrice', 'Total Volume']]
+avocado = pd.DataFrame(avo2)
+print(avocado)
+
+# 2.b Convert Date column to a timestamp using datetime. Print the dataframe.
+avocado['Date'] = pd.to_datetime(avocado['Date'])
+print(avocado)
+
+# 2.c Create a figure with 4 subplots.
+import matplotlib.pyplot as plt
+
+fig = plt.figure()
+ax1 = fig.add_subplot(2, 2, 1)
+ax2 = fig.add_subplot(2, 2, 2)
+ax3 = fig.add_subplot(2, 2, 3)
+ax4 = fig.add_subplot(2, 2, 4)
+plt.show()
+
+# 2.d Sort avocado by Date inplace in ascending order.
+avocado.sort_values(by='Date')
+
+# 2.e Plot the average price of avocados over time in subplot 1. Use scatter().
+ax1 = plt.scatter(avocado['Date'], avocado['AveragePrice'])
+plt.xlabel('Date')
+plt.ylabel('Average Price')
+
+# 2.f Plot the total volume of avocados sold over time in subplot 2. Use scatter().
+ax2 = plt.scatter(avocado['Date'], avocado['Total Volume'])
+plt.xlabel('Date')
+plt.ylabel('Total Volume')
+
+# 2.g You notice that the plots are cluttered. The reason is that there are many dates in the dataframe and there are several transactions on the same date!
+# To address this, we will aggregate the volume and price by date.
+# Create a new dataframe avocado1 which sums the Total Volume for each date.
+avocado['TotalRevenue'] = avocado['AveragePrice']*avocado['Total Volume']
+avocado1 = avocado.groupby('Date').sum()
+avocado1['AveragePrice'] = avocado1['TotalRevenue']/avocado1['Total Volume']
+print(avocado1)
+
+# 2.h Plot the average price of avocado1 over time in subplot 3. Use plot().
+ax3 = plt.plot(avocado1.index, avocado1['AveragePrice'], marker = 'o')
+plt.xlabel('Date')
+plt.ylabel('Average Price')
+plt.show()
+
+# 2.i Plot the total volume of avocado1 sold over time in subplot 4. Use plot().
+fig = plt.figure()
+ax1 = fig.add_subplot(2, 2, 1)
+ax2 = fig.add_subplot(2, 2, 2)
+ax3 = fig.add_subplot(2, 2, 3)
+ax4 = fig.add_subplot(2, 2, 4)
+
+plt.subplot(2,2,1)
+ax1 = plt.scatter(avocado['Date'], avocado['AveragePrice'])
+plt.xlabel('Date')
+plt.ylabel('Average Price')
+
+plt.subplot(2,2,2)
+ax2 = plt.scatter(avocado['Date'], avocado['Total Volume'])
+plt.xlabel('Date')
+plt.ylabel('Total Volume')
+
+plt.subplot(2,2,3)
+ax3 = plt.plot(avocado1.index, avocado1['AveragePrice'], marker = 'o')
+plt.xlabel('Date')
+plt.ylabel('Average Price')
+
+plt.subplot(2,2,4)
+ax4 = plt.plot(avocado1.index, avocado1['Total Volume'], marker='o')
+plt.xlabel('Date')
+plt.ylabel('Total Volume')
+
+plt.show()
+
+# 3.a Create a figure with 2 subplots
+fig2 = plt.figure()
+plot1 = fig2.add_subplot(1, 2, 1)
+plot2 = fig2.add_subplot(1, 2, 2)
+plt.show()
+
+# 3.b Use the code shown below to smooth out the last two plots from question2. Plot the smoothed curves in subplots 1 and 2. You could use smoothing over 20 days.
+fig2 = plt.figure()
+plot1 = fig2.add_subplot(1, 2, 1)
+plot2 = fig2.add_subplot(1, 2, 2)
+
+plt.subplot(1,2,1)
+plot1 = plt.plot(avocado1.index, avocado1['AveragePrice'].rolling(12).mean(), marker = 'o')
+plt.ylabel('Average Price')
+
+plt.subplot(1,2,2)
+plot2 = plt.plot(avocado1.index, avocado1['Total Volume'].rolling(12).mean(), marker='o')
+plt.ylabel('Total Volume')
+
+plt.show()
