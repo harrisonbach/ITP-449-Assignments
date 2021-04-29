@@ -1,0 +1,131 @@
+import pandas as pd
+import numpy as np
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import MinMaxScaler
+
+# Enter your code here
+from sklearn.model_selection import train_test_split
+from sklearn.dummy import DummyClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import BaggingClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import (
+    classification_report,
+    recall_score,
+    precision_score,
+    accuracy_score
+)
+from sklearn.ensemble import VotingClassifier
+from sklearn.svm import SVC
+from sklearn.linear_model import LogisticRegression
+
+# 1. Read the dataset into variable called 'data' (1 mark)
+from google.colab import files 
+uploaded = files.upload()
+file = pd.read_csv('cancer(3).csv')
+data = pd.DataFrame(file)
+data.drop(['Sample Code Number'],axis = 1, inplace = True)
+data['Bland Chromatin']
+data.replace('?',0, inplace=True)
+# Convert the DataFrame object into NumPy array otherwise you will not be able to impute
+values = data.values
+# Now impute it
+imputer = SimpleImputer(missing_values=np.nan, strategy='mean')
+imputedData = imputer.fit_transform(values)
+scaler = MinMaxScaler(feature_range=(0, 1))
+normalizedData = scaler.fit_transform(imputedData)
+cols = ['Clump Thickness', 'Uniformity of Cell Size', 'Uniformity of Cell Shape', 'Marginal Adhesion', 'Single Epithelial Cell Size', 'Bland Chromatin', 'Bare Nuclei', 'Normal Nucleoli', 'Mitosis','Class']
+normalizedData = pd.DataFrame(normalizedData, columns=cols)
+print(normalizedData.head())
+
+# 2. Split the data into test and training data with test size - 30%. Compute the baseline classification accuracy for X_train. (3 marks)
+X = data.iloc[:, :8]
+y = data['Class']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=2020, stratify=y)
+
+dummy_classifier = DummyClassifier(strategy='most_frequent')
+dummy_classifier.fit(X_train,y_train)
+baseline_acc = dummy_classifier.score(X_test,y_test)
+print("Baseline Accuracy = ", baseline_acc)
+
+# 3. Bagging : Build a generic Bagging ensemble and print the accuracy (4 marks)
+# Hyperparameters:
+# Base estimator = DecisionTreeClassifier
+# n_estimators = 10
+#random_state = 42
+
+def create_bootstrap_sample(df):
+    return df.sample(n= df.shape[0], replace = True)
+
+bootstrap_sample = create_bootstrap_sample(X_train)
+print(bootstrap_sample)
+
+model_bagging = BaggingClassifier(random_state = 42)
+model_bagging.fit(X_train, y_train)
+pred_bagging = model_bagging.predict(X_test)
+acc_bagging = accuracy_score(y_test, pred_bagging)
+
+print(' Accuracy = ', acc_bagging)
+
+# 4. RandomForest : (7 marks)
+# a) Build a Random Forest model and print the accuracy (4 marks)
+# Constructor arguments:
+# n_estimators = 100, max_features = 7 and random_state = 42
+model_rf = RandomForestClassifier(n_estimators=100, max_features=7, random_state=42)
+model_rf.fit(X_train, y_train)
+predict_rf = model_rf.predict(X_test)
+acc_rf = accuracy_score(y_test, predict_rf)
+
+print(' Accuracy = ', acc_rf)
+
+# b) Calculate the top 3 important features for the above RandomForest model and print them (3 marks)
+feature_importances = model_rf.feature_importances_
+features = X_train.columns
+df = pd.DataFrame({'features': features, 'importance': feature_importances}).nlargest
+print(df)
+
+print("3 most important features: Uniformity of Cell Size, Uniformity of Cell Shape, Bland Chromatin")
+
+# 5. Boosting: (7 marks)
+# a) Build an AdaBoost model with training data and print the accuracy (4 marks)
+# Hyperparameters:
+# Base estimator = DecisionTreeClassifier, max_depth = 4
+# n_estimators = 200
+# random_state = 42
+# learning_rate = 0.05
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.tree import DecisionTreeClassifier
+base_est = DecisionTreeClassifier (max_depth =4)
+ada_boost = AdaBoostClassifier(base_est, n_estimators=200, random_state=42, learning_rate=.05)
+ada_boost.fit(X_train, y_train)
+predict_boost = ada_boost.predict(X_test)
+acc_boost = accuracy_score(y_test, predict_boost)
+
+print(' Accuracy = ', acc_boost)
+
+# b) Calculate the top 3 important features for the above AdaBoost model and print them (3 marks)
+feature_importances_boost = ada_boost.feature_importances_
+feature_boost = X_train.columns
+df_boost = pd.DataFrame({'features': feature_boost, 'importance': feature_importances_boost}).nlargest
+print(df_boost)
+
+print("3 most important features: Clump Thickness, Uniformity of Cell Shape, Uniformity of Cell Size")
+
+# 6. Voting : Using a voting classifier, build an ensemble of RandomForestClassifier, DecisionTreeClassifier, Support Vector Machine and Logistic Regression. (7 marks)
+# Use max_depth = 4, n_estimators = 200, voting = soft
+rfClf = RandomForestClassifier(n_estimators=200, max_depth=4)
+svmClf = SVC(probability=True)
+logClf = LogisticRegression(random_state=0)
+
+clf2 = VotingClassifier(estimators = [('rf',rfClf), ('svm',svmClf), ('log', logClf)], voting='soft') 
+
+# train the ensemble classifier
+clf2.fit(X_train, y_train)
+
+clf2_pred = clf2.predict(X_test)
+print('Accuracy score', accuracy_score(y_test, clf2_pred))
+
+#7. Mention the best model among the above 4 models and its accuracy (1 mark)
+print("Best model: Adaboost Model \n Accuracy: .962")
+
+
