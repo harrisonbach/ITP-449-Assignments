@@ -1,0 +1,130 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# 1. Create a statistical summary of the data in the file “CommuteStLouis.csv”. Plot a histogram of age for the CommuteStLouis data.
+from google.colab import files 
+uploaded = files.upload()
+stats = pd.read_csv('CommuteStLouis.csv')
+frame = pd.DataFrame(stats)
+print(frame)
+
+print(frame.describe())
+plt.hist(frame['Age'],bins=10)
+plt.title("Histogram of age")
+
+# 2. For the data CommuteStLouis:
+# a. Produce a correlation matrix of age, distance and time. Which two numeric variables are most highly correlated? What is the correlation coefficient for the above pair? Hint: If df is your dataframe then you can use print(df.corr()).
+# b. Create a scatterplot matrix of the numeric variables in the data. What do the figures in the diagonal going from the top left to the bottom right show? What can you say about the skewness of the various attributes?
+# c. Produce a side-by-side boxplot of distance travelled by gender. Do the data in the file indicate that women tend to commute shorter distances?
+print(frame.corr())
+# distance and time have highest correlation with coefficient of .830
+
+print(pd.plotting.scatter_matrix(frame))
+# diagonal shows histograms instead bc scatterplots would show perfect collinearity
+# clear positive linear correlations between distance and time
+# distance and age & time and age data mostly uniform with some outliers, not significant linear relationship
+
+fig = plt.figure(2, figsize=(9, 6))
+
+set1 = frame2[(frame2["Sex"]== "M")]
+set2 = frame2[(frame2['Sex'] == 'F')]
+data_to_plot = [set1.Distance, set2.Distance]
+
+ax = fig.add_subplot(111)
+
+bp = ax.boxplot(data_to_plot)
+plt.title("Traveling Distance for Males vs. Females")
+plt.ylabel("Distance")
+plt.xlabel("Sex (1 = M, 2 = F)")
+plt.show()
+
+
+Homework 4
+Create a copy of the notebook to start answering the questions. Name your notebook in the format HW3_lastname_firstname.ipynb to facilitate the grading process.
+
+Answer all the questions, test your code to ensure there are no errors and the results are as expected. Once you have answered all the questions, save the final copy, then go to File-> click on Download.ipynb. Once the local copy has been downloaded, submit your file on Blackboard under the corresponding assignment section. Also provide us a link to your notebook during submission.
+
+NOTE: Please give the TAs the permission to access your notebooks through the links you have provided during submission.
+
+The due date of this homework is 03/14/2021 (Sunday).
+
+Please ensure you follow all the steps mentioned in the homework.
+
+Most questions have sample outputs to help you understand the question.
+
+You can submit your solutions any number of times until the deadline.
+
+The datasets used in this homework can be found in the google drive link below -
+
+https://drive.google.com/drive/folders/1NxCh4X7u7wVo5aHojxjLNs9wC7B7zJhb?usp=sharing
+
+Follow the necessary steps to import data to test your code. You can use any method to read your data in the notebook. We will not be grading the methods you use. We will only grade the code from the point where you read the dataset into a pandas dataframe - (pd.read_csv('file_name'))
+
+Import all the libraries you require in the cell below.
+
+[ ]
+# import all necessary libraries here
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+1. Create a statistical summary of the data in the file “CommuteStLouis.csv”. Plot a histogram of age for the CommuteStLouis data.
+image.png
+
+[ ]
+# Type solution here
+# import dataset and plot histogram
+# from google.colab import files 
+# uploaded = files.upload()
+stats = pd.read_csv('CommuteStLouis.csv')
+frame = pd.DataFrame(stats)
+print(frame)
+
+print(frame.describe())
+plt.hist(frame['Age'],bins=10)
+plt.title("Histogram of age")
+
+2. For the data CommuteStLouis:
+a. Produce a correlation matrix of age, distance and time. Which two numeric variables are most highly correlated? What is the correlation coefficient for the above pair? Hint: If df is your dataframe then you can use print(df.corr()).
+
+image.png
+
+b. Create a scatterplot matrix of the numeric variables in the data. What do the figures in the diagonal going from the top left to the bottom right show? What can you say about the skewness of the various attributes?
+
+image.png
+
+c. Produce a side-by-side boxplot of distance travelled by gender. Do the data in the file indicate that women tend to commute shorter distances?
+
+image.png
+
+[ ]
+# Type solution here
+print(frame.corr())
+# distance and time have highest correlation with coefficient of .830
+
+print(pd.plotting.scatter_matrix(frame))
+# diagonal shows histograms instead bc scatterplots would show perfect collinearity
+# clear positive linear correlations between distance and time
+# distance and age & time and age data mostly uniform with some outliers, not significant linear relationship
+
+fig = plt.figure(2, figsize=(9, 6))
+…plt.xlabel("Sex (1 = M, 2 = F)")
+plt.show()
+
+
+# 3. For the pair in Question 2.a plot the scatter plot. Also superimpose a linear regression line on the plot.
+from sklearn.linear_model import LinearRegression
+model = LinearRegression(fit_intercept=True)
+X = frame.Distance[:, np.newaxis]
+model.fit(X, frame.Time)
+xfit = np.linspace(0, 80, num=50)
+Xfit = xfit[:, np.newaxis]
+yfit = model.predict(Xfit)
+
+plt.plot(xfit, yfit, color='r')
+plt.scatter(frame.Distance, frame.Time)
+plt.title("Linear Regression of Time vs. Distance")
+
+# 4. Show the distribution of residuals of the data from Part 3.
+
